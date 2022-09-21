@@ -10,25 +10,25 @@
  * @version 1.0.0
  */
 
-function openLebanonChromebooks() {
+function openLebanonOPACS() {
     const source = '/PublicChromeDevices/OPACS/Closed';
     const destination = '/PublicChromeDevices/OPACS/Open';
 
-    moveChromebooks(source, destination);
+    moveOPACS(source, destination);
 }
 
-function closeLebanonChromebooks() {
+function closeLebanonOPACS() {
     const source = '/PublicChromeDevices/OPACS/Open';
     const destination = '/PublicChromeDevices/OPACS/Closed';
 
-    moveChromebooks(source, destination);
+    moveOPACS(source, destination);
 
 }
 
 
  
  
- function moveChromebooks(sourceOU, destinationOU) {
+ function moveOPACS(sourceOU, destinationOU) {
    let pageToken
    let page
    do {
