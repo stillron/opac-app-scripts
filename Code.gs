@@ -26,6 +26,21 @@ function closeLebanonOPACS() {
 
 }
 
+function openKiltonOPACS() {
+  const source = rootPath + 'Closed';
+  const destination = rootPath + 'Open';
+
+  moveOPACS(source, destination, 'Kilton');
+}
+
+function closeKiltonOPACS() {
+  const source = rootPath + 'Open';
+  const destination = rootPath + 'Closed';
+
+  moveOPACS(source, destination, 'Kilton');
+
+}
+
 
 
 function moveOPACS(sourceOU, destinationOU, deviceLocation) {
