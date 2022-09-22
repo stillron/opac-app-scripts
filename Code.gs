@@ -12,38 +12,42 @@
 rootPath = '/PublicChromeDevices/OPACS/';
 
 function openLebanonOPACS() {
-  const source = rootPath + 'Closed';
-  const destination = rootPath + 'Open';
-
-  moveOPACS(source, destination, 'Lebanon');
+  moveOPACS(true, 'Lebanon');
 }
 
 function closeLebanonOPACS() {
-  const source = rootPath + 'Open';
-  const destination = rootPath + 'Closed';
-
-  moveOPACS(source, destination, 'Lebanon');
-
+  moveOPACS(false, 'Lebanon');
 }
 
 function openKiltonOPACS() {
-  const source = rootPath + 'Closed';
-  const destination = rootPath + 'Open';
-
-  moveOPACS(source, destination, 'Kilton');
+  moveOPACS(true, 'Kilton');
 }
 
 function closeKiltonOPACS() {
-  const source = rootPath + 'Open';
-  const destination = rootPath + 'Closed';
-
-  moveOPACS(source, destination, 'Kilton');
-
+  moveOPACS(false, 'Kilton');
 }
 
+function isOpening(opening) {
+  if (opening) {
+    return {
+      opacSource: rootPath + 'Closed',
+      opacDest: rootPath + 'Open',
+      patStaSource: rootPath + 'PatronStation/Closed',
+      patStaDest: rootPath + 'PatronStation/Open'
+    }
+  } else {
+    return {
+      opacSource: rootPath + 'Open',
+      opacDest: rootPath + 'Closed',
+      patStaSource: rootPath + 'PatronStation/Open',
+      patStaDest: rootPath + 'PatronStation/Closed'
+    }
 
+  }
+}
 
-function moveOPACS(sourceOU, destinationOU, deviceLocation) {
+function moveOPACS(open, deviceLocation) {
+  const { opacSource, opacDest, patStaSource, patStaDest } = isOpening(open);
   let FilterLocFn = (chrOSLoc => chrOSLoc.annotatedLocation === deviceLocation);
   let pageToken
   let page
@@ -51,7 +55,7 @@ function moveOPACS(sourceOU, destinationOU, deviceLocation) {
     page = AdminDirectory.Chromeosdevices.list('my_customer', {
       maxResults: 100,
       pageToken: pageToken,
-      orgUnitPath: sourceOU,
+      orgUnitPath: opacSource,
     })
     //console.log(page);
     let chromeosdevices = page.chromeosdevices
@@ -60,13 +64,15 @@ function moveOPACS(sourceOU, destinationOU, deviceLocation) {
       for (let i = 0; i < filteredOPACS.length; i++) {
         const device = filteredOPACS[i]
         // console.log(device);
-        Logger.log('Moving chromebook ID: %s; SN: %s AssetID: %s; Location: %s', device.deviceId,
+        Logger.log('Moving chromebook ID: %s; SN: %s AssetID: %s; Location: %s from %s to %s', device.deviceId,
           device.serialNumber,
           device.annotatedAssetId,
-          device.annotatedLocation)
+          device.annotatedLocation,
+          device.orgUnitPath,
+          opacDest)
         AdminDirectory.Customer.Devices.Chromeos.issueCommand({ commandType: "REBOOT" }, 'my_customer', device.deviceId)
         AdminDirectory.Chromeosdevices.update({
-          orgUnitPath: destinationOU,
+          orgUnitPath: opacDest,
         }, 'my_customer', device.deviceId)
       }
     } else {
