@@ -9,17 +9,18 @@
  * @license MIT
  * @version 1.0.0
  */
+rootPath = '/PublicChromeDevices/OPACS/';
 
 function openLebanonOPACS() {
-    const source = '/PublicChromeDevices/OPACS/Closed';
-    const destination = '/PublicChromeDevices/OPACS/Open';
+    const source = rootPath+'Closed';
+    const destination = rootPath+'Open';
 
     moveOPACS(source, destination);
 }
 
 function closeLebanonOPACS() {
-    const source = '/PublicChromeDevices/OPACS/Open';
-    const destination = '/PublicChromeDevices/OPACS/Closed';
+    const source = rootPath+'Open';
+    const destination = rootPath+'Closed';
 
     moveOPACS(source, destination);
 
