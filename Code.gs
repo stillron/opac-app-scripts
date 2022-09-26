@@ -71,7 +71,11 @@
      console.log(opacPage)
      if (opacPage.page.chromeosdevices !== undefined ) {
        //devices.push(opacPage.page.chromeosdevices);
+<<<<<<< HEAD
        psPage.page.chromeosdevices.map(chromeosdevice => {devices.push(chromeosdevice)})
+=======
+       opacPage.page.chromeosdevices.map(chromeosdevice => {devices.push(chromeosdevice)})
+>>>>>>> c49a9d6 (switched to using map for devices variable population)
        console.log('Found OPAC devices');
      }
      const psPage = getPage(psSource);;
