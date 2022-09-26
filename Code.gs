@@ -32,15 +32,15 @@ function isOpening(opening) {
     return {
       opacSource: rootPath + 'Closed',
       opacDest: rootPath + 'Open',
-      patStaSource: rootPath + 'PatronStation/Closed',
-      patStaDest: rootPath + 'PatronStation/Open'
+      psSource: rootPath + 'PatronStation/Closed',
+      psDest: rootPath + 'PatronStation/Open'
     }
   } else {
     return {
       opacSource: rootPath + 'Open',
       opacDest: rootPath + 'Closed',
-      patStaSource: rootPath + 'PatronStation/Open',
-      patStaDest: rootPath + 'PatronStation/Closed'
+      psSource: rootPath + 'PatronStation/Open',
+      psDest: rootPath + 'PatronStation/Closed'
     }
 
   }
@@ -55,22 +55,34 @@ function getPage(source) {
   })
 
   return {
-    thePage: page,
-    theToken: pageToken
+    page: page,
+    token: pageToken
   }
 }
 
 function moveOPACS(open, deviceLocation) {
-  const { opacSource, opacDest, patStaSource, patStaDest } = isOpening(open);
+  // Set source and destination paths
+  const { opacSource, opacDest, psSource, psDest } = isOpening(open);
   let FilterLocFn = (chrOSLoc => chrOSLoc.annotatedLocation === deviceLocation);
-
+  let devices = [];
   do {
 
-    const { thePage: opacPage, theToken: opacToken } = getPage(opacSource);
+    const opacPage = getPage(opacSource);
+    console.log(opacPage)
+    if (opacPage.page.chromeosdevices !== undefined ) {
+      devices.push(opacPage.page.chromeosdevices);
+      console.log('Found OPAC devices');
+    }
+    const psPage = getPage(psSource);;
+    console.log(psPage);
+    if (psPage.page.chromeosdevices !== undefined) {
+      devices.push(psPage.page.chromeosdevices);
+      console.log('Found Patron Station devices');
+    }
     //console.log(page);
-    let chromeosdevices = opacPage.chromeosdevices
-    if (chromeosdevices) {
-      let filteredOPACS = chromeosdevices.filter(FilterLocFn);
+    // let chromeosdevices = opacPage.page.chromeosdevices
+    if (devices.length > 0) {
+      let filteredOPACS = devices.filter(FilterLocFn);
       for (let i = 0; i < filteredOPACS.length; i++) {
         const device = filteredOPACS[i]
         // console.log(device);
@@ -88,6 +100,6 @@ function moveOPACS(open, deviceLocation) {
     } else {
       Logger.log('No chromebooks found.')
     }
-    pageToken = opacPage.nextPageToken
+    pageToken = opacPage.page.nextPageToken
   } while (pageToken)
 }
