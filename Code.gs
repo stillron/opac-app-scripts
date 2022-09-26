@@ -46,19 +46,29 @@ function isOpening(opening) {
   }
 }
 
+function getPage(source) {
+  let pageToken;
+  let page = AdminDirectory.Chromeosdevices.list('my_customer', {
+    maxResults: 100,
+    pageToken: pageToken,
+    orgUnitPath: source,
+  })
+
+  return {
+    thePage: page,
+    theToken: pageToken
+  }
+}
+
 function moveOPACS(open, deviceLocation) {
   const { opacSource, opacDest, patStaSource, patStaDest } = isOpening(open);
   let FilterLocFn = (chrOSLoc => chrOSLoc.annotatedLocation === deviceLocation);
-  let pageToken
-  let page
+
   do {
-    page = AdminDirectory.Chromeosdevices.list('my_customer', {
-      maxResults: 100,
-      pageToken: pageToken,
-      orgUnitPath: opacSource,
-    })
+
+    const { thePage: opacPage, theToken: opacToken } = getPage(opacSource);
     //console.log(page);
-    let chromeosdevices = page.chromeosdevices
+    let chromeosdevices = opacPage.chromeosdevices
     if (chromeosdevices) {
       let filteredOPACS = chromeosdevices.filter(FilterLocFn);
       for (let i = 0; i < filteredOPACS.length; i++) {
@@ -78,6 +88,6 @@ function moveOPACS(open, deviceLocation) {
     } else {
       Logger.log('No chromebooks found.')
     }
-    pageToken = page.nextPageToken
+    pageToken = opacPage.nextPageToken
   } while (pageToken)
 }
