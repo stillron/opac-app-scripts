@@ -1,5 +1,3 @@
-rootPath = '/PublicChromeDevices/OPACS/';
-
 function openLebDevs() {
   moveDevices(true, 'Lebanon', 'opac');
   moveDevices(true, 'Lebanon', 'ps');
@@ -21,6 +19,7 @@ function closeKiltonDevs() {
 }
 
 function isOpening(opening) {
+  let rootPath = '/PublicChromeDevices/OPACS/';
   if (opening) {
     return {
       opacSource: rootPath + 'Closed',
