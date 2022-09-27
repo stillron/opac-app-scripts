@@ -66,6 +66,7 @@ function moveDevices(open, deviceLocation, role) {
   let destOU;
   let pageToken;
   let devType;
+  let onLocationDevs = [];
 
   const { opacSource, opacDest, psSource, psDest } = isOpening(open);
 
@@ -84,7 +85,10 @@ function moveDevices(open, deviceLocation, role) {
     let devices = page.chromeosdevices;
 
     if (devices) {
-      let onLocationDevs = devices.filter(dev => dev.annotatedLocation === deviceLocation);
+      onLocationDevs = devices.filter(dev => dev.annotatedLocation === deviceLocation);
+    }
+    
+    if (onLocationDevs.length > 0) {
       for (let i = 0; i < onLocationDevs.length; i++) {
         const device = onLocationDevs[i];
         makeMoveLog(device, devType, destOU);
