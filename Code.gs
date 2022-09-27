@@ -1,8 +1,8 @@
 rootPath = '/PublicChromeDevices/OPACS/';
 
 function openLebDevs() {
-  moveDevices(true, 'Lebanon','opac');
-  moveDevices(true, 'Lebanon','ps');
+  moveDevices(true, 'Lebanon', 'opac');
+  moveDevices(true, 'Lebanon', 'ps');
 }
 
 function closeLebDevs() {
@@ -47,7 +47,17 @@ function getPage(source) {
     orgUnitPath: source,
   })
 
-return page;
+  return page;
+}
+
+function makeMoveLog(device, devType, destOU) {
+  Logger.log('Moving %s SN: %s AssetID: %s; Location: %s from %s to %s',
+    devType.slice(0, -1),
+    device.serialNumber,
+    device.annotatedAssetId,
+    device.annotatedLocation,
+    device.orgUnitPath,
+    destOU);
 }
 
 function moveDevices(open, deviceLocation, role) {
@@ -55,44 +65,37 @@ function moveDevices(open, deviceLocation, role) {
   let sourceOU;
   let destOU;
   let pageToken;
-  
+  let devType;
+
   const { opacSource, opacDest, psSource, psDest } = isOpening(open);
-  
+
   if (role === 'opac') {
-   sourceOU = opacSource;
-   destOU= opacDest;
+    sourceOU = opacSource;
+    destOU = opacDest;
+    devType = 'OPACS'
   } else {
     sourceOU = psSource;
     destOU = psDest;
+    devType = 'Patron Stations'
   }
-  
+
   do {
     let page = getPage(sourceOU);
     let devices = page.chromeosdevices;
 
     if (devices) {
-    let onLocationDevs = devices.filter(dev => dev.annotatedLocation === deviceLocation);
-    for (let i = 0; i < onLocationDevs.length; i++) {
-      const device = onLocationDevs[i];
-      Logger.log('Moving chromebook ID: %s; SN: %s AssetID: %s; Location: %s from %s to %s', device.deviceId,
-        device.serialNumber,
-        device.annotatedAssetId,
-        device.annotatedLocation,
-        device.orgUnitPath,
-        destOU)
-      AdminDirectory.Customer.Devices.Chromeos.issueCommand({ commandType: "REBOOT" }, 'my_customer', device.deviceId)
-      AdminDirectory.Chromeosdevices.update({
-        orgUnitPath: destOU,
-      }, 'my_customer', device.deviceId)
-    }
-  } else {
-    if (role === 'opacs') {
-      devType = 'OPACS'
+      let onLocationDevs = devices.filter(dev => dev.annotatedLocation === deviceLocation);
+      for (let i = 0; i < onLocationDevs.length; i++) {
+        const device = onLocationDevs[i];
+        makeMoveLog(device, devType, destOU);
+        AdminDirectory.Customer.Devices.Chromeos.issueCommand({ commandType: "REBOOT" }, 'my_customer', device.deviceId)
+        AdminDirectory.Chromeosdevices.update({
+          orgUnitPath: destOU,
+        }, 'my_customer', device.deviceId)
+      }
     } else {
-      devType = 'Patron Stations'
+      Logger.log(`No ${devType} found at ${deviceLocation}.`)
+      pageToken = page.nextPageToken;
     }
-    Logger.log('No '+ devType +' found at ' + deviceLocation+ '.')
-  pageToken = page.nextPageToken;
-}
-} while (pageToken)
+  } while (pageToken)
 }
