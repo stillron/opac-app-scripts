@@ -1,19 +1,23 @@
 rootPath = '/PublicChromeDevices/OPACS/';
 
-function openLebanonOPACS() {
-  moveOPACS(true, 'Lebanon');
+function openLebDevs() {
+  moveDevices(true, 'Lebanon','opac');
+  moveDevices(true, 'Lebanon','ps');
 }
 
-function closeLebanonOPACS() {
-  moveOPACS(false, 'Lebanon');
+function closeLebDevs() {
+  moveDevices(false, 'Lebanon', 'opac');
+  moveDevices(false, 'Lebanon', 'ps');
 }
 
-function openKiltonOPACS() {
-  moveOPACS(true, 'Kilton');
+function openKiltonDevs() {
+  moveDevices(true, 'Kilton', 'opac');
+  moveDevices(true, 'Kilton', 'ps');
 }
 
-function closeKiltonOPACS() {
-  moveOPACS(false, 'Kilton');
+function closeKiltonDevs() {
+  moveDevices(false, 'Kilton', 'opac');
+  moveDevices(false, 'Kilton', 'ps');
 }
 
 function isOpening(opening) {
@@ -43,57 +47,52 @@ function getPage(source) {
     orgUnitPath: source,
   })
 
-  return {
-    page: page,
-    token: pageToken
-  }
+return page;
 }
 
-function moveOPACS(open, deviceLocation) {
+function moveDevices(open, deviceLocation, role) {
   // Set source and destination paths
+  let sourceOU;
+  let destOU;
+  let pageToken;
+  
   const { opacSource, opacDest, psSource, psDest } = isOpening(open);
-  let FilterLocFn = (chrOSLoc => chrOSLoc.device.annotatedLocation === deviceLocation);
-  let deviceList = [];
+  
+  if (role === 'opac') {
+   sourceOU = opacSource;
+   destOU= opacDest;
+  } else {
+    sourceOU = psSource;
+    destOU = psDest;
+  }
+  
   do {
+    let page = getPage(sourceOU);
+    let devices = page.chromeosdevices;
 
-    const opacPage = getPage(opacSource);
-    console.log(opacPage)
-    if (opacPage.page.chromeosdevices !== undefined) {
-      console.log(opacPage.page.chromeosdevices);
-      // devices.push(psPage.page.chromeosdevices);
-      opacPage.page.chromeosdevices.map(chromeosdevice => { deviceList.push({ device: chromeosdevice, ouDest: opacDest }) })
-      console.log('Found OPAC Device');
+    if (devices) {
+    let onLocationDevs = devices.filter(dev => dev.annotatedLocation === deviceLocation);
+    for (let i = 0; i < onLocationDevs.length; i++) {
+      const device = onLocationDevs[i];
+      Logger.log('Moving chromebook ID: %s; SN: %s AssetID: %s; Location: %s from %s to %s', device.deviceId,
+        device.serialNumber,
+        device.annotatedAssetId,
+        device.annotatedLocation,
+        device.orgUnitPath,
+        destOU)
+      AdminDirectory.Customer.Devices.Chromeos.issueCommand({ commandType: "REBOOT" }, 'my_customer', device.deviceId)
+      AdminDirectory.Chromeosdevices.update({
+        orgUnitPath: destOU,
+      }, 'my_customer', device.deviceId)
     }
-    const psPage = getPage(psSource);
-    console.log(psPage);
-    if (psPage.page.chromeosdevices !== undefined) {
-      console.log(psPage.page.chromeosdevices);
-      // devices.push(psPage.page.chromeosdevices);
-      psPage.page.chromeosdevices.map(chromeosdevice => { deviceList.push({ device: chromeosdevice, ouDest: psDest }) })
-      console.log('Found Patron Station devices');
-    }
-    //console.log(page);
-    // let chromeosdevices = opacPage.page.chromeosdevices
-    if (deviceList.length > 0) {
-      let filteredOPACS = deviceList.filter(FilterLocFn);
-      for (let i = 0; i < filteredOPACS.length; i++) {
-        const device = filteredOPACS[i].device;
-        const destination = filteredOPACS[i].ouDest;
-        // console.log(device);
-        Logger.log('Moving chromebook ID: %s; SN: %s AssetID: %s; Location: %s from %s to %s', device.deviceId,
-          device.serialNumber,
-          device.annotatedAssetId,
-          device.annotatedLocation,
-          device.orgUnitPath,
-          destination)
-        AdminDirectory.Customer.Devices.Chromeos.issueCommand({ commandType: "REBOOT" }, 'my_customer', device.deviceId)
-        AdminDirectory.Chromeosdevices.update({
-          orgUnitPath: destination,
-        }, 'my_customer', device.deviceId)
-      }
+  } else {
+    if (role === 'opacs') {
+      devType = 'OPACS'
     } else {
-      Logger.log('No chromebooks found.')
+      devType = 'Patron Stations'
     }
-    pageToken = opacPage.page.nextPageToken
-  } while (pageToken)
+    Logger.log('No '+ devType +' found at ' + deviceLocation+ '.')
+  pageToken = page.nextPageToken;
+}
+} while (pageToken)
 }
