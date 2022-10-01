@@ -12,21 +12,8 @@ function makeAllTriggers() {
     { name: 'OpenLebDevsOnFriday', func: 'openLebDevs', day: 'FRIDAY', hour: '9', minute: '40' },
     { name: 'CloseLebDevsOnFriday', func: 'closeLebDevs', day: 'FRIDAY', hour: '17', minute: '5' },
     { name: 'OpenLebDevsOnSaturday', func: 'openLebDevs', day: 'SATURDAY', hour: '9', minute: '40' },
-    { name: 'CloseLebDevsOnSaturday', func: 'closeLebDevs', day: 'SATURDAY', hour: '17', minute: '5' },
-    //Kilton Hours
-    { name: 'OpenKiltonDevsOnMonday', func: 'openKiltonDevs', day: 'MONDAY', hour: '9', minute: '40' },
-    { name: 'CloseKiltonDevsOnMonday', func: 'closeKiltonDevs', day: 'MONDAY', hour: '18', minute: '5' },
-    { name: 'OpenKiltonDevsOnTuesday', func: 'openKiltonDevs', day: 'TUESDAY', hour: '9', minute: '40' },
-    { name: 'CloseKiltonDevsOnTuesday', func: 'closeKiltonDevs', day: 'TUESDAY', hour: '18', minute: '5' },
-    { name: 'OpenKiltonDevsOnWednesday', func: 'openKiltonDevs', day: 'WEDNESDAY', hour: '9', minute: '40' },
-    { name: 'CloseKiltonDevsOnWednesday', func: 'closeKiltonDevs', day: 'WEDNESDAY', hour: '18', minute: '5' },
-    { name: 'OpenKiltonDevsOnThursday', func: 'openKiltonDevs', day: 'THURSDAY', hour: '9', minute: '40' },
-    { name: 'CloseKiltonDevsOnThursday', func: 'closeKiltonDevs', day: 'THURSDAY', hour: '18', minute: '5' },
-    { name: 'OpenKiltonDevsOnFriday', func: 'openKiltonDevs', day: 'FRIDAY', hour: '9', minute: '40' },
-    { name: 'CloseKiltonDevsOnFriday', func: 'closeKiltonDevs', day: 'FRIDAY', hour: '17', minute: '5' },
-    { name: 'OpenKiltonDevsOnSaturday', func: 'openKiltonDevs', day: 'SATURDAY', hour: '9', minute: '40' },
-    { name: 'CloseKiltonDevsOnSaturday', func: 'closeKiltonDevs', day: 'SATURDAY', hour: '17', minute: '5' }
-  ];
+    { name: 'CloseLebDevsOnSaturday', func: 'closeLebDevs', day: 'SATURDAY', hour: '17', minute: '5' }
+    ]
 
   triggerList.forEach(trigger => makeTrigger(trigger));
 }
