@@ -26,8 +26,7 @@ function getPage(source) {
     maxResults: 100,
     pageToken: pageToken,
     orgUnitPath: source,
-  })
-
+  });
   return page;
 }
 
@@ -38,17 +37,6 @@ function makeMoveLog(device, destOU) {
     device.annotatedLocation,
     device.orgUnitPath,
     destOU);
-}
-
-function listTest() {
-  var ous = AdminDirectory.Orgunits.list('my_customer', { orgUnitPath: '/PublicChromeDevices/OPACS', type: 'all' });
-  ous.organizationUnits.forEach(function (ou) {
-    if (ou.name === 'Closed') {
-      let path = ou.parentOrgUnitPath.split('/');
-      console.log(path);
-      console.log(path.join('/'));
-    }
-  });
 }
 
 function moveUnitsDevices(ou, deviceLocation, opening) {
