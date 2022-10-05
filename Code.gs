@@ -77,7 +77,9 @@ function moveUnitsDevices(ou, deviceLocation, opening) {
       for (let i = 0; i < onLocationDevs.length; i++) {
         const device = onLocationDevs[i];
         makeMoveLog(device, destOU);
-        AdminDirectory.Customer.Devices.Chromeos.issueCommand({ commandType: "REBOOT" }, 'my_customer', device.deviceId)
+        AdminDirectory.Customer.Devices.Chromeos.issueCommand({
+           commandType: "REBOOT" 
+          }, 'my_customer', device.deviceId)
         AdminDirectory.Chromeosdevices.update({
           orgUnitPath: destOU,
         }, 'my_customer', device.deviceId)
