@@ -1,41 +1,27 @@
 function openLebDevs() {
   moveDevices(true, 'Lebanon', 'opac');
-  moveDevices(true, 'Lebanon', 'ps');
+  // moveDevices(true, 'Lebanon', 'ps');
 }
 
 function closeLebDevs() {
   moveDevices(false, 'Lebanon', 'opac');
-  moveDevices(false, 'Lebanon', 'ps');
+  // moveDevices(false, 'Lebanon', 'ps');
 }
 
 function openKiltonDevs() {
   moveDevices(true, 'Kilton', 'opac');
-  moveDevices(true, 'Kilton', 'ps');
+  // moveDevices(true, 'Kilton', 'ps');
 }
 
 function closeKiltonDevs() {
   moveDevices(false, 'Kilton', 'opac');
-  moveDevices(false, 'Kilton', 'ps');
+  // moveDevices(false, 'Kilton', 'ps');
 }
 
-function isOpening(opening) {
-  let rootPath = '/PublicChromeDevices/OPACS/';
-  if (opening) {
-    return {
-      opacSource: rootPath + 'Closed',
-      opacDest: rootPath + 'Open',
-      psSource: rootPath + 'PatronStation/Closed',
-      psDest: rootPath + 'PatronStation/Open'
-    }
-  } else {
-    return {
-      opacSource: rootPath + 'Open',
-      opacDest: rootPath + 'Closed',
-      psSource: rootPath + 'PatronStation/Open',
-      psDest: rootPath + 'PatronStation/Closed'
-    }
-
-  }
+function getPaths() {
+  let rootPath = '/PublicChromeDevices/OPACS';
+  var ous = AdminDirectory.Orgunits.list('my_customer', {orgUnitPath: rootPath, type: 'all'});
+  return ous.organizationUnits.filter( ou => ou.name === 'Closed');
 }
 
 function getPage(source) {
@@ -59,24 +45,30 @@ function makeMoveLog(device, devType, destOU) {
     destOU);
 }
 
-function moveDevices(open, deviceLocation, role) {
-  // Set source and destination paths
+function listTest() {
+  var ous = AdminDirectory.Orgunits.list('my_customer', {orgUnitPath: '/PublicChromeDevices/OPACS', type: 'all'});
+  ous.organizationUnits.forEach(function(ou){
+    if (ou.name === 'Closed') {
+    let path = ou.parentOrgUnitPath.split('/');
+   console.log(path);
+   console.log(path.join('/'));
+ }
+});
+}
+
+function moveUnitsDevices(ou, deviceLocation, opening) {
   let sourceOU;
   let destOU;
   let pageToken;
-  let devType;
   let onLocationDevs = [];
+  let devType = 'later';
 
-  const { opacSource, opacDest, psSource, psDest } = isOpening(open);
-
-  if (role === 'opac') {
-    sourceOU = opacSource;
-    destOU = opacDest;
-    devType = 'OPACS'
+  if (opening) {
+    sourceOU = ou.orgUnitPath;
+    destOU = ou.parentOrgUnitPath;
   } else {
-    sourceOU = psSource;
-    destOU = psDest;
-    devType = 'Patron Stations'
+    sourceOU = ou.parentOrgUnitPath;
+    destOU = ou.orgUnitPath;
   }
 
   do {
@@ -97,8 +89,33 @@ function moveDevices(open, deviceLocation, role) {
         }, 'my_customer', device.deviceId)
       }
     } else {
-      Logger.log(`No ${devType} found at ${deviceLocation}.`)
+      Logger.log(`No ${deviceLocation} devices found in unit ${sourceOU}`)
       pageToken = page.nextPageToken;
     }
   } while (pageToken)
+}
+
+function moveDevices(open, deviceLocation, role) {
+  // Set source and destination paths
+  // let sourceOU;
+  // let destOU;
+  // let pageToken;
+  // let devType;
+  // let onLocationDevs = [];
+
+  const paths = getPaths();
+
+  paths.forEach( path => moveUnitsDevices(path, deviceLocation, open));
+
+  // if (role === 'opac') {
+  //   sourceOU = opacSource;
+  //   destOU = opacDest;
+  //   devType = 'OPACS'
+  // } else {
+  //   sourceOU = psSource;
+  //   destOU = psDest;
+  //   devType = 'Patron Stations'
+  // }
+
+  
 }
