@@ -1,27 +1,23 @@
 function openLebDevs() {
-  moveDevices(true, 'Lebanon', 'opac');
-  // moveDevices(true, 'Lebanon', 'ps');
+  moveDevices(true, 'Lebanon');
 }
 
 function closeLebDevs() {
-  moveDevices(false, 'Lebanon', 'opac');
-  // moveDevices(false, 'Lebanon', 'ps');
+  moveDevices(false, 'Lebanon');
 }
 
 function openKiltonDevs() {
-  moveDevices(true, 'Kilton', 'opac');
-  // moveDevices(true, 'Kilton', 'ps');
+  moveDevices(true, 'Kilton');
 }
 
 function closeKiltonDevs() {
-  moveDevices(false, 'Kilton', 'opac');
-  // moveDevices(false, 'Kilton', 'ps');
+  moveDevices(false, 'Kilton');
 }
 
 function getPaths() {
   let rootPath = '/PublicChromeDevices/OPACS';
-  var ous = AdminDirectory.Orgunits.list('my_customer', {orgUnitPath: rootPath, type: 'all'});
-  return ous.organizationUnits.filter( ou => ou.name === 'Closed');
+  var ous = AdminDirectory.Orgunits.list('my_customer', { orgUnitPath: rootPath, type: 'all' });
+  return ous.organizationUnits.filter(ou => ou.name === 'Closed');
 }
 
 function getPage(source) {
@@ -35,25 +31,24 @@ function getPage(source) {
   return page;
 }
 
-function makeMoveLog(device, devType, destOU) {
-  Logger.log('Moving %s SN: %s AssetID: %s; Location: %s from %s to %s',
-    devType.slice(0, -1),
-    device.serialNumber,
+function makeMoveLog(device, destOU) {
+  Logger.log('Moving %s; SN: %s; Location: %s; from %s to %s',
     device.annotatedAssetId,
+    device.serialNumber,
     device.annotatedLocation,
     device.orgUnitPath,
     destOU);
 }
 
 function listTest() {
-  var ous = AdminDirectory.Orgunits.list('my_customer', {orgUnitPath: '/PublicChromeDevices/OPACS', type: 'all'});
-  ous.organizationUnits.forEach(function(ou){
+  var ous = AdminDirectory.Orgunits.list('my_customer', { orgUnitPath: '/PublicChromeDevices/OPACS', type: 'all' });
+  ous.organizationUnits.forEach(function (ou) {
     if (ou.name === 'Closed') {
-    let path = ou.parentOrgUnitPath.split('/');
-   console.log(path);
-   console.log(path.join('/'));
- }
-});
+      let path = ou.parentOrgUnitPath.split('/');
+      console.log(path);
+      console.log(path.join('/'));
+    }
+  });
 }
 
 function moveUnitsDevices(ou, deviceLocation, opening) {
@@ -61,7 +56,6 @@ function moveUnitsDevices(ou, deviceLocation, opening) {
   let destOU;
   let pageToken;
   let onLocationDevs = [];
-  let devType = 'later';
 
   if (opening) {
     sourceOU = ou.orgUnitPath;
@@ -78,11 +72,11 @@ function moveUnitsDevices(ou, deviceLocation, opening) {
     if (devices) {
       onLocationDevs = devices.filter(dev => dev.annotatedLocation === deviceLocation);
     }
-    
+
     if (onLocationDevs.length > 0) {
       for (let i = 0; i < onLocationDevs.length; i++) {
         const device = onLocationDevs[i];
-        makeMoveLog(device, devType, destOU);
+        makeMoveLog(device, destOU);
         AdminDirectory.Customer.Devices.Chromeos.issueCommand({ commandType: "REBOOT" }, 'my_customer', device.deviceId)
         AdminDirectory.Chromeosdevices.update({
           orgUnitPath: destOU,
@@ -95,27 +89,8 @@ function moveUnitsDevices(ou, deviceLocation, opening) {
   } while (pageToken)
 }
 
-function moveDevices(open, deviceLocation, role) {
-  // Set source and destination paths
-  // let sourceOU;
-  // let destOU;
-  // let pageToken;
-  // let devType;
-  // let onLocationDevs = [];
-
+function moveDevices(open, deviceLocation) {
   const paths = getPaths();
+  paths.forEach(path => moveUnitsDevices(path, deviceLocation, open));
 
-  paths.forEach( path => moveUnitsDevices(path, deviceLocation, open));
-
-  // if (role === 'opac') {
-  //   sourceOU = opacSource;
-  //   destOU = opacDest;
-  //   devType = 'OPACS'
-  // } else {
-  //   sourceOU = psSource;
-  //   destOU = psDest;
-  //   devType = 'Patron Stations'
-  // }
-
-  
 }
