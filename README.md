@@ -4,7 +4,7 @@
 
 ### Setup
 
-1. Open [[https://scripts.google.com]]
+1. Open [[https://script.google.com]]
 2. Click __New Project__
 3. Copy and paste the contents of _Code.gs_ into _Code.gs_ on the scripts page
 4. Click Plus Next to __File__ and create trigger file for a library branch
